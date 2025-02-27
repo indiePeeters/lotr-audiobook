@@ -1,0 +1,7 @@
+query GetBooksByIdD($id: uuid) {
+  book(where: {id: {_eq: $id}}) {
+    id
+    title
+    author
+  }
+}

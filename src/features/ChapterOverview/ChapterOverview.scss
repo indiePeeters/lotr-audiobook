@@ -1,0 +1,29 @@
+
+@media (max-width: 600px) {
+  .chapters {
+      flex-direction: column !important;
+      height: fit-content !important;
+      width: 100% !important;
+      .chapter {
+        width:100% !important;
+      }
+  }
+}
+
+.chapter-overview {
+  padding-top: 32px;
+}
+
+.chapters {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  width: 100%;
+  .chapter {
+    display: flex;
+    flex-direction: column;
+    width: calc((100% / 3) - (32px));
+  }
+}

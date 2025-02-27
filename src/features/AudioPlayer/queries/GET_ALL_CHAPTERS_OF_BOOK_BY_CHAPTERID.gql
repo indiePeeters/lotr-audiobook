@@ -1,0 +1,10 @@
+query GetAllChaptersOfBookByChapterId($id: uuid) {
+  chapter(where: {Chapter_Book: {Book_Chapter: {id: {_eq: $id}}}}, order_by: {order: asc}) {
+    id
+    author
+    imageUrl
+    title
+    audioUrl
+    order
+  }
+}

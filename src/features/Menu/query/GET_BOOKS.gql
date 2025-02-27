@@ -1,0 +1,7 @@
+query GetBooksByTitle($title: String) {
+  book(where: {title: {_ilike: $title}}) {
+    id
+    title
+    author
+  }
+}

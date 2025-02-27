@@ -1,0 +1,33 @@
+@import '@/styles/colours.scss';
+
+@font-face {
+    font-family: 'RingBearer Medium';
+    src: url('./assets/fonts/RingBearerMedium.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  button {
+    font-family: 'RingBearer Medium' !important;
+    color: $white !important;
+    font-weight: 100 !important;
+  }
+
+  h3 {
+    font-family: 'RingBearer Medium' !important;
+    color: $white !important;
+    font-weight: 100 !important;
+  }
+
+  h2 {
+    font-family: 'RingBearer Medium' !important;
+    color: $white !important;
+    font-weight: 100 !important;
+  }
+
+  span {
+    font-size: 14px !important;
+    font-family: 'RingBearer Medium' !important;
+    color: $white !important;
+    font-weight: 100 !important;
+  }

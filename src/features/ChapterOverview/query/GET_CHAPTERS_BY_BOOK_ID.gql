@@ -1,0 +1,9 @@
+query GetChaptersBybookId($bookId: uuid) {
+  chapter(where: {bookId: {_eq: $bookId}}) {
+    id
+    title
+    author
+    audioUrl  
+    imageUrl
+  }
+}

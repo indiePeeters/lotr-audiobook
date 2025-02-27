@@ -1,0 +1,22 @@
+.audio-player {
+    padding: 16px;
+}
+.audio-times {
+    display: flex;
+    justify-content: space-between;
+}
+
+.play-pause-button {
+    font-size: 64px !important;
+}
+
+.loader {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+
+    .spinner {
+        width: 100%;
+    }
+}
