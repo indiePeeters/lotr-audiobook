@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "generate-graphql": "graphql-codegen --config src/plugins/graphql/codegen.yml && node src/models/generated/afterFileGenerated.cjs",
-    "predeploy": "npm run build",
+    "predeploy": "echo 'lotr.indiepeeters.dev' > dist/CNAME && npm run build",
     "deploy": "gh-pages -b gh-pages -d dist"
   },
   "dependencies": {
