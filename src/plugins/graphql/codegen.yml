@@ -2,7 +2,7 @@ overwrite: true
 schema:
   - https://lotr-audiobook.hasura.app/v1/graphql:
       headers: 
-        x-hasura-admin-secret: $HASURA_ADMIN_SECRET$
+        x-hasura-admin-secret: ${VITE_HASURA_ADMIN_KEY}
 documents: src/**/*.gql
 generates:
   src/models/generated/graphql.ts:

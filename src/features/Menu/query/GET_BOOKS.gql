@@ -1,7 +1,8 @@
-query GetBooksByTitle($title: String) {
-  book(where: {title: {_ilike: $title}}) {
+query GetBooks {
+  book {
     id
     title
     author
+    cover_url
   }
 }

@@ -1,26 +1,28 @@
 import { createTheme } from "@mui/material";
+
 export const theme = createTheme({
     palette: {
-        background: {
-            default: '#f0f0f0', // Custom background color
-        },
+      mode: 'dark',
+      background: {
+          default: '#f0f0f0', // Custom background color
+      },
     },
     components: {
       MuiButton: {
-        styleOverrides: {
-            root: {
-                '&:focus': { outline: 'none' },
-                '&:focus-visible': { outline: 'none' },
-            },
-        },
+          styleOverrides: {
+              root: {
+                  '&:focus': { outline: 'none' },
+                  '&:focus-visible': { outline: 'none' },
+              },
+          },
       },
       MuiIconButton: {
-        styleOverrides: {
-          root: {
-              '&:focus': { outline: 'none' },
-              '&:focus-visible': { outline: 'none' },
+          styleOverrides: {
+              root: {
+                  '&:focus': { outline: 'none' },
+                  '&:focus-visible': { outline: 'none' },
+              },
           },
-      }
+      },
     },
-  },
 });

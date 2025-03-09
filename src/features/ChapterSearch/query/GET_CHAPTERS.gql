@@ -1,0 +1,13 @@
+query getChaptersByName($name: String) {
+  chapter(where: {_or: [{title: {_ilike: $name}}, {author: {_ilike: $name}}]}, order_by: {order: asc}) {
+    id
+    title
+    author
+    order
+    imageUrl
+    Chapter_Book {
+      title
+    }
+    bookId
+  }
+}

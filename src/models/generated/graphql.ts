@@ -22,6 +22,7 @@ export type Book = {
   __typename?: 'book';
   Book_Chapter?: Maybe<Chapter>;
   author: Scalars['String']['output'];
+  cover_url: Scalars['String']['output'];
   id: Scalars['uuid']['output'];
   title: Scalars['String']['output'];
 };
@@ -34,12 +35,14 @@ export type BookAggregateFields = {
 export type BookMaxFields = {
   __typename?: 'book_max_fields';
   author?: Maybe<Scalars['String']['output']>;
+  cover_url?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   title?: Maybe<Scalars['String']['output']>;
 };
 export type BookMinFields = {
   __typename?: 'book_min_fields';
   author?: Maybe<Scalars['String']['output']>;
+  cover_url?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   title?: Maybe<Scalars['String']['output']>;
 };
@@ -51,6 +54,7 @@ export type BookMutationResponse = {
 export type BookOrderBy = {
   Book_Chapter?: InputMaybe<ChapterOrderBy>;
   author?: InputMaybe<OrderBy>;
+  cover_url?: InputMaybe<OrderBy>;
   id?: InputMaybe<OrderBy>;
   title?: InputMaybe<OrderBy>;
 };
@@ -235,10 +239,12 @@ export type GetChaptersBybookIdQueryVariables = Exact<{
   bookId?: InputMaybe<Scalars['uuid']['input']>;
 }>;
 export type GetChaptersBybookIdQuery = { __typename?: 'query_root', chapter: Array<{ __typename?: 'chapter', id: any, title: string, author: string, audioUrl: string, imageUrl: string }> };
-export type GetBooksByTitleQueryVariables = Exact<{
-  title?: InputMaybe<Scalars['String']['input']>;
+export type GetChaptersByNameQueryVariables = Exact<{
+  name?: InputMaybe<Scalars['String']['input']>;
 }>;
-export type GetBooksByTitleQuery = { __typename?: 'query_root', book: Array<{ __typename?: 'book', id: any, title: string, author: string }> };
+export type GetChaptersByNameQuery = { __typename?: 'query_root', chapter: Array<{ __typename?: 'chapter', id: any, title: string, author: string, order?: any | null | undefined, imageUrl: string, bookId?: any | null | undefined, Chapter_Book?: { __typename?: 'book', title: string } | null | undefined }> };
+export type GetBooksQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetBooksQuery = { __typename?: 'query_root', book: Array<{ __typename?: 'book', id: any, title: string, author: string, cover_url: string }> };
 export const GetAllChaptersOfBookByChapterIdDocument = gql`
     query GetAllChaptersOfBookByChapterId($id: uuid) {
   chapter(
@@ -297,7 +303,7 @@ export type GetBooksByIdDSuspenseQueryHookResult = ReturnType<typeof useGetBooks
 export type GetBooksByIdDQueryResult = Apollo.QueryResult<GetBooksByIdDQuery, GetBooksByIdDQueryVariables>;
 export const GetChaptersBybookIdDocument = gql`
     query GetChaptersBybookId($bookId: uuid) {
-  chapter(where: {bookId: {_eq: $bookId}}) {
+  chapter(where: {bookId: {_eq: $bookId}}, order_by: {order: asc}) {
     id
     title
     author
@@ -322,36 +328,72 @@ export type GetChaptersBybookIdQueryHookResult = ReturnType<typeof useGetChapter
 export type GetChaptersBybookIdLazyQueryHookResult = ReturnType<typeof useGetChaptersBybookIdLazyQuery>;
 export type GetChaptersBybookIdSuspenseQueryHookResult = ReturnType<typeof useGetChaptersBybookIdSuspenseQuery>;
 export type GetChaptersBybookIdQueryResult = Apollo.QueryResult<GetChaptersBybookIdQuery, GetChaptersBybookIdQueryVariables>;
-export const GetBooksByTitleDocument = gql`
-    query GetBooksByTitle($title: String) {
-  book(where: {title: {_ilike: $title}}) {
+export const GetChaptersByNameDocument = gql`
+    query getChaptersByName($name: String) {
+  chapter(
+    where: {_or: [{title: {_ilike: $name}}, {author: {_ilike: $name}}]}
+    order_by: {order: asc}
+  ) {
     id
     title
     author
+    order
+    imageUrl
+    Chapter_Book {
+      title
+    }
+    bookId
   }
 }
     `;
-export function useGetBooksByTitleQuery(baseOptions?: Apollo.QueryHookOptions<GetBooksByTitleQuery, GetBooksByTitleQueryVariables>) {
+export function useGetChaptersByNameQuery(baseOptions?: Apollo.QueryHookOptions<GetChaptersByNameQuery, GetChaptersByNameQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetBooksByTitleQuery, GetBooksByTitleQueryVariables>(GetBooksByTitleDocument, options);
+        return Apollo.useQuery<GetChaptersByNameQuery, GetChaptersByNameQueryVariables>(GetChaptersByNameDocument, options);
       }
-export function useGetBooksByTitleLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBooksByTitleQuery, GetBooksByTitleQueryVariables>) {
+export function useGetChaptersByNameLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetChaptersByNameQuery, GetChaptersByNameQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetBooksByTitleQuery, GetBooksByTitleQueryVariables>(GetBooksByTitleDocument, options);
+          return Apollo.useLazyQuery<GetChaptersByNameQuery, GetChaptersByNameQueryVariables>(GetChaptersByNameDocument, options);
         }
-export function useGetBooksByTitleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBooksByTitleQuery, GetBooksByTitleQueryVariables>) {
+export function useGetChaptersByNameSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetChaptersByNameQuery, GetChaptersByNameQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetBooksByTitleQuery, GetBooksByTitleQueryVariables>(GetBooksByTitleDocument, options);
+          return Apollo.useSuspenseQuery<GetChaptersByNameQuery, GetChaptersByNameQueryVariables>(GetChaptersByNameDocument, options);
         }
-export type GetBooksByTitleQueryHookResult = ReturnType<typeof useGetBooksByTitleQuery>;
-export type GetBooksByTitleLazyQueryHookResult = ReturnType<typeof useGetBooksByTitleLazyQuery>;
-export type GetBooksByTitleSuspenseQueryHookResult = ReturnType<typeof useGetBooksByTitleSuspenseQuery>;
-export type GetBooksByTitleQueryResult = Apollo.QueryResult<GetBooksByTitleQuery, GetBooksByTitleQueryVariables>;
+export type GetChaptersByNameQueryHookResult = ReturnType<typeof useGetChaptersByNameQuery>;
+export type GetChaptersByNameLazyQueryHookResult = ReturnType<typeof useGetChaptersByNameLazyQuery>;
+export type GetChaptersByNameSuspenseQueryHookResult = ReturnType<typeof useGetChaptersByNameSuspenseQuery>;
+export type GetChaptersByNameQueryResult = Apollo.QueryResult<GetChaptersByNameQuery, GetChaptersByNameQueryVariables>;
+export const GetBooksDocument = gql`
+    query GetBooks {
+  book {
+    id
+    title
+    author
+    cover_url
+  }
+}
+    `;
+export function useGetBooksQuery(baseOptions?: Apollo.QueryHookOptions<GetBooksQuery, GetBooksQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBooksQuery, GetBooksQueryVariables>(GetBooksDocument, options);
+      }
+export function useGetBooksLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBooksQuery, GetBooksQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBooksQuery, GetBooksQueryVariables>(GetBooksDocument, options);
+        }
+export function useGetBooksSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBooksQuery, GetBooksQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetBooksQuery, GetBooksQueryVariables>(GetBooksDocument, options);
+        }
+export type GetBooksQueryHookResult = ReturnType<typeof useGetBooksQuery>;
+export type GetBooksLazyQueryHookResult = ReturnType<typeof useGetBooksLazyQuery>;
+export type GetBooksSuspenseQueryHookResult = ReturnType<typeof useGetBooksSuspenseQuery>;
+export type GetBooksQueryResult = Apollo.QueryResult<GetBooksQuery, GetBooksQueryVariables>;
 export const Operations = {
   Query: {
     GetAllChaptersOfBookByChapterId: 'GetAllChaptersOfBookByChapterId',
     GetBooksByIdD: 'GetBooksByIdD',
     GetChaptersBybookId: 'GetChaptersBybookId',
-    GetBooksByTitle: 'GetBooksByTitle'
+    getChaptersByName: 'getChaptersByName',
+    GetBooks: 'GetBooks'
   }
 }

@@ -1,5 +1,5 @@
 query GetChaptersBybookId($bookId: uuid) {
-  chapter(where: {bookId: {_eq: $bookId}}) {
+  chapter(where: {bookId: {_eq: $bookId}}, order_by: {order: asc}) {
     id
     title
     author

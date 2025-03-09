@@ -2,7 +2,7 @@ import { useGetChaptersBybookIdQuery } from "../../models/generated/graphql"
 import { useNavigate, useParams } from "react-router-dom";
 import './ChapterOverview.scss'
 import { useGetBooksByIdDQuery } from "../../models/generated/graphql";
-import Routes from "../../shared/enums/routes";
+import Routes from '@/shared/enums/routes';
 import { CircularProgress } from "@mui/material";
 
 export const ChapterOverview = () : JSX.Element => {

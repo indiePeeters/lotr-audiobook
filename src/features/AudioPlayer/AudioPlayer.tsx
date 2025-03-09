@@ -9,7 +9,7 @@ import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Chapter, useGetAllChaptersOfBookByChapterIdQuery } from '../../models/generated/graphql';
-import Routes from '../../shared/enums/routes';
+import Routes from '@/shared/enums/routes';
 
 export const AudioPlayer = () : JSX.Element => {
     // State and hooks
@@ -24,6 +24,16 @@ export const AudioPlayer = () : JSX.Element => {
     const [nextChapter, setNextChapter] = useState<Chapter>();
 
     const chapterByIdResult = useGetAllChaptersOfBookByChapterIdQuery({ variables: { id: chapterId } });
+    const updateProgress = () => {
+        setAudioCurrentTime(audioRef.current?.currentTime);
+        setAudioDuration(audioRef.current?.duration);
+        if (audioRef.current?.currentTime === audioRef.current?.duration && isPlaying) {
+            handleNextButton();
+        }
+    };
+
+    audioRef.current?.addEventListener('timeupdate', updateProgress);
+    audioRef.current?.addEventListener('loadedmetadata', updateProgress);
 
     useEffect(() => {
         if (chapterByIdResult.data) {
@@ -36,33 +46,10 @@ export const AudioPlayer = () : JSX.Element => {
         }
     }, [chapterByIdResult.data, chapterId]);
 
-    useEffect(() => {
-        const delay = setTimeout(() => {
-            handlePlayPause();
-        }, 1200);
-        return () => clearTimeout(delay);
-    }, [chapterId, bookId]);
-
-    useEffect(() => {
-        const audioElement = audioRef.current;
-        const updateProgress = () => {
-            setAudioCurrentTime(audioElement?.currentTime);
-            setAudioDuration(audioElement?.duration);
-            if (audioElement?.currentTime === audioElement?.duration) {
-                handleNextButton();
-            }
-        };
-        audioElement?.addEventListener('timeupdate', updateProgress);
-        audioElement?.addEventListener('loadedmetadata', updateProgress);
-
-        return () => {
-            audioElement?.removeEventListener('timeupdate', updateProgress);
-            audioElement?.removeEventListener('loadedmetadata', updateProgress);
-        };
-    }, []);
 
     // Event handlers
-    const handlePlayPause = () => {   
+    const handlePlayPause = () => {
+        updateProgress()  
         if (isPlaying) {
             audioRef.current?.pause();
             setIsPlaying(false);
@@ -108,10 +95,15 @@ export const AudioPlayer = () : JSX.Element => {
 
     // Derived state and helper functions
     const formatTime = (seconds: number) => {
-        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
         const remainingSeconds = Math.floor(seconds % 60);
-        const paddedSeconds = remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds;
-        return `${minutes}:${paddedSeconds}`;
+
+        const formattedHours = String(hours).padStart(2, '0');
+        const formattedMinutes = String(minutes).padStart(2, '0');
+        const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+
+        return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
     };
 
     const isNextButtonDisabled = () => {
@@ -177,7 +169,7 @@ export const AudioPlayer = () : JSX.Element => {
                     <SkipNextIcon fontSize="large" />
                 </IconButton>
             </div>
-            <audio ref={audioRef} src={currentChapter?.audioUrl}></audio>
+            <audio ref={audioRef} src={currentChapter?.audioUrl} onLoadedData={handlePlayPause}></audio>
         </div>
     );
 };

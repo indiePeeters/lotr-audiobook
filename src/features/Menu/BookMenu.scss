@@ -1,0 +1,21 @@
+@import '@/styles/colours.scss';
+
+.menu {
+    flex-wrap: wrap;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 32px;
+    background-color: $black;
+    z-index: 4 !important;
+}
+
+  
+.menu > .book-cover:nth-child(2) {
+    margin-left: auto; /* Pushes item 2 to the right */
+}
+  
+.menu > .book-cover:nth-child(3) {
+width: 100%; /* Makes item 3 take up the full width when wrapped */
+justify-content: center;
+}
