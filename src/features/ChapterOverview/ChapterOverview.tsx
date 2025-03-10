@@ -4,43 +4,54 @@ import './ChapterOverview.scss'
 import { useGetBooksByIdDQuery } from "../../models/generated/graphql";
 import Routes from '@/shared/enums/routes';
 import { CircularProgress } from "@mui/material";
+import { chapterOverviewTranslations } from "./locale/translations";
+import { t } from "i18next";
 
 export const ChapterOverview = () : JSX.Element => {
+    // State and hooks
     const { bookId } = useParams()
     const navigate = useNavigate()
-    const bookByIdResult = useGetBooksByIdDQuery({
+    const { data: bookdata } = useGetBooksByIdDQuery({
         variables: { id: bookId}
     })
-    const chaptersByBookResult = useGetChaptersBybookIdQuery({
+    
+    const { data: chapterData, error: chapterError, loading: chapterLoading }  = useGetChaptersBybookIdQuery({
         variables: { bookId: bookId }
     });
 
+    // Event handlers
     const onChapterClicked = (id: string, bookId : string) => {
         navigate(Routes.ListenToChapter.replace(':bookId', bookId).replace(":chapterId", id));
     }
 
-    if (chaptersByBookResult.loading) {
+    // Derived state and helper functions
+
+    // JSX
+    if (chapterLoading) {
         return (
             <div>
                 <div className='spinner'>
                     <CircularProgress />
                 </div>
-                <span>Loading chapters...</span>
+                <span>{t(chapterOverviewTranslations.loading)}</span>
             </div>
         )
     }
-    if (chaptersByBookResult.error) return <p>An error occurred: {chaptersByBookResult.error.message}</p>;
+
+    if (chapterError) { 
+        return <p>{t(chapterOverviewTranslations.error, chapterError.message)}</p>
+    }
 
     return (
         <div className="chapter-overview">
-            <h2>{bookByIdResult.data?.book[0].title}</h2>
+            <h2>{bookdata?.book[0].title}</h2>
             <div className="chapters">
                 {
-                    chaptersByBookResult.data?.chapter.map(c => (
+                    chapterData?.chapter.map(c => (
                         <div key={c.id} className="chapter" onClick={ () => onChapterClicked(c.id, bookId ?? '')}>
                             <img src={c.imageUrl}/>
                             <h3> {c.title} </h3>
-                            <span> by {c.author} </span>
+                            <span> {t(chapterOverviewTranslations.readBy)} {c.author} </span>
                         </div>
                     ))
                 }

@@ -10,6 +10,8 @@ import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Chapter, useGetAllChaptersOfBookByChapterIdQuery } from '../../models/generated/graphql';
 import Routes from '@/shared/enums/routes';
+import { audioPlayerTranslations } from './locale/translations';
+import { t } from 'i18next';
 
 export const AudioPlayer = () : JSX.Element => {
     // State and hooks
@@ -23,7 +25,7 @@ export const AudioPlayer = () : JSX.Element => {
     const [currentChapter, setCurrentChapter] = useState<Chapter>();
     const [nextChapter, setNextChapter] = useState<Chapter>();
 
-    const chapterByIdResult = useGetAllChaptersOfBookByChapterIdQuery({ variables: { id: chapterId } });
+    const {data, error, loading} = useGetAllChaptersOfBookByChapterIdQuery({ variables: { id: chapterId } });
     const updateProgress = () => {
         setAudioCurrentTime(audioRef.current?.currentTime);
         setAudioDuration(audioRef.current?.duration);
@@ -36,15 +38,15 @@ export const AudioPlayer = () : JSX.Element => {
     audioRef.current?.addEventListener('loadedmetadata', updateProgress);
 
     useEffect(() => {
-        if (chapterByIdResult.data) {
-            const current = chapterByIdResult.data.chapter.find(x => x.id === chapterId);
-            const previous = chapterByIdResult.data.chapter.find(x => x.order === (current?.order - 1));
-            const next = chapterByIdResult.data.chapter.find(x => x.order === (current?.order + 1));
+        if (data) {
+            const current = data.chapter.find(x => x.id === chapterId);
+            const previous = data.chapter.find(x => x.order === (current?.order - 1));
+            const next = data.chapter.find(x => x.order === (current?.order + 1));
             setCurrentChapter(current);
             setPreviousChapter(previous);
             setNextChapter(next);
         }
-    }, [chapterByIdResult.data, chapterId]);
+    }, [data, chapterId]);
 
 
     // Event handlers
@@ -121,15 +123,19 @@ export const AudioPlayer = () : JSX.Element => {
     }
 
     // JSX
-    if (chapterByIdResult.loading) { 
+    if (loading) { 
         return ( 
             <div className='loader'>
                 <div className='spinner'>
                     <CircularProgress />
                 </div>
-                <span>Loading chapter...</span>
+                <span>{t(audioPlayerTranslations.loading)}</span>
             </div>
         );
+    }
+
+    if (error) { 
+        return <p>{t(audioPlayerTranslations.error, error.message)}</p>
     }
 
     return (
