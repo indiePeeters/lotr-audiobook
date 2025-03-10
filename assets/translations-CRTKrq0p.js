@@ -1,1 +1,0 @@
-const r="Search for a specific chapter",e={loading:"Loading chapters...",error:"An error occurred: {{message}}",noData:"Its very empty here"},t={title:r,chapterGrid:e};export{e as chapterGrid,t as default,r as title};
