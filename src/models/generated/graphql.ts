@@ -241,8 +241,10 @@ export type GetChaptersBybookIdQueryVariables = Exact<{
 export type GetChaptersBybookIdQuery = { __typename?: 'query_root', chapter: Array<{ __typename?: 'chapter', id: any, title: string, author: string, audioUrl: string, imageUrl: string }> };
 export type GetChaptersByNameQueryVariables = Exact<{
   name?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 }>;
-export type GetChaptersByNameQuery = { __typename?: 'query_root', chapter: Array<{ __typename?: 'chapter', id: any, title: string, author: string, order?: any | null | undefined, imageUrl: string, bookId?: any | null | undefined, Chapter_Book?: { __typename?: 'book', title: string } | null | undefined }> };
+export type GetChaptersByNameQuery = { __typename?: 'query_root', chapter_aggregate: { __typename?: 'chapter_aggregate', aggregate?: { __typename?: 'chapter_aggregate_fields', count: number } | null | undefined }, chapter: Array<{ __typename?: 'chapter', id: any, title: string, author: string, order?: any | null | undefined, imageUrl: string, bookId?: any | null | undefined, Chapter_Book?: { __typename?: 'book', title: string } | null | undefined }> };
 export type GetBooksQueryVariables = Exact<{ [key: string]: never; }>;
 export type GetBooksQuery = { __typename?: 'query_root', book: Array<{ __typename?: 'book', id: any, title: string, author: string, cover_url: string }> };
 export const GetAllChaptersOfBookByChapterIdDocument = gql`
@@ -329,10 +331,19 @@ export type GetChaptersBybookIdLazyQueryHookResult = ReturnType<typeof useGetCha
 export type GetChaptersBybookIdSuspenseQueryHookResult = ReturnType<typeof useGetChaptersBybookIdSuspenseQuery>;
 export type GetChaptersBybookIdQueryResult = Apollo.QueryResult<GetChaptersBybookIdQuery, GetChaptersBybookIdQueryVariables>;
 export const GetChaptersByNameDocument = gql`
-    query getChaptersByName($name: String) {
+    query getChaptersByName($name: String, $limit: Int, $offset: Int) {
+  chapter_aggregate(
+    where: {_or: [{title: {_ilike: $name}}, {author: {_ilike: $name}}]}
+  ) {
+    aggregate {
+      count
+    }
+  }
   chapter(
     where: {_or: [{title: {_ilike: $name}}, {author: {_ilike: $name}}]}
     order_by: {order: asc}
+    limit: $limit
+    offset: $offset
   ) {
     id
     title

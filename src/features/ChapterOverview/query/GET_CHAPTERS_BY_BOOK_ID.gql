@@ -6,4 +6,4 @@ query GetChaptersBybookId($bookId: uuid) {
     audioUrl  
     imageUrl
   }
-}
+} 
