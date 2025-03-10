@@ -1,0 +1,1 @@
+const r="Loading chapters...",o="An error occurred: {{message}}",a="Its very empty here",e="by",t={loading:r,error:o,noData:a,readBy:e};export{t as default,o as error,r as loading,a as noData,e as readBy};
