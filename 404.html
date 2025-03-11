@@ -7,8 +7,9 @@
     <script>
         var path = window.location.pathname + window.location.search + window.location.hash;
 
-        // Check if we are already redirected to avoid an infinite loop
+        // Redirect only if we're not already in the redirect cycle
         if (!window.location.search.includes('redirect=') && path !== '/') {
+            sessionStorage.setItem('redirecting', 'true'); // Store flag to prevent loops
             window.location.replace('/?redirect=' + encodeURIComponent(path));
         }
     </script>
