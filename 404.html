@@ -6,7 +6,9 @@
     <title>Page Not Found</title>
     <script>
         var path = window.location.pathname + window.location.search + window.location.hash;
-        if (path !== '/' && !path.startsWith('/index.html')) {
+        
+        // Check if redirect parameter already exists in the URL to prevent infinite redirect loop
+        if (path !== '/' && !path.startsWith('/index.html') && !window.location.search.includes('redirect=')) {
             window.location.replace('/?redirect=' + encodeURIComponent(path));
         }
     </script>
