@@ -2,7 +2,7 @@
 
 @font-face {
     font-family: 'RingBearer Medium';
-    src: url('./assets/fonts/RingBearerMedium.ttf') format('truetype');
+    src: url('./fonts/RingbearerMedium.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
   }
@@ -12,19 +12,7 @@
     font-family: 'RingBearer Medium' !important;
   }
 
-  button {
-    font-family: 'RingBearer Medium' !important;
-    color: $white !important;
-    font-weight: 100 !important;
-  }
-
-  h3 {
-    font-family: 'RingBearer Medium' !important;
-    color: $white !important;
-    font-weight: 100 !important;
-  }
-
-  h2 {
+  button, h3, h2, span {
     font-family: 'RingBearer Medium' !important;
     color: $white !important;
     font-weight: 100 !important;
@@ -32,6 +20,10 @@
 
   span {
     font-size: 14px !important;
+  }
+
+  .MuiTablePagination-selectLabel, .MuiTablePagination-select, .MuiTablePagination-displayedRows, .MuiDataGrid-columnHeader, .MuiDataGrid-cell  {
+    font-size: 12px !important;
     font-family: 'RingBearer Medium' !important;
     color: $white !important;
     font-weight: 100 !important;
