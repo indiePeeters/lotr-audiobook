@@ -48,7 +48,6 @@ export const AudioPlayer = () : JSX.Element => {
         }
     }, [data, chapterId]);
 
-
     // Event handlers
     const handlePlayPause = () => {
         updateProgress()  

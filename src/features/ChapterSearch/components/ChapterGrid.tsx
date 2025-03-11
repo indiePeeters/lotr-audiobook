@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import Routes from "@/shared/enums/routes";
 import { t } from "i18next";
 import { chapterSearchTranslations } from "../locale/translations";
+import './ChapterGrid.scss';
 
 interface ChapterGridProps {
     search : string
@@ -62,7 +63,7 @@ export const ChapterGrid = ({ search } : ChapterGridProps) : JSX.Element => {
     // JSX
     if (loading) { 
         return ( 
-            <div className='loader'>
+            <div className='loader chapter-grid'>
                 <div className='spinner'>
                     <CircularProgress />
                 </div>
@@ -77,6 +78,7 @@ export const ChapterGrid = ({ search } : ChapterGridProps) : JSX.Element => {
 
     return (
         <DataGrid
+            className="chapter-grid"
             columns={columns}
             rows={rows}
             rowCount={count}
