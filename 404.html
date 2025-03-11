@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page Not Found</title>
     <script>
+        // Get the current path (including query and hash) to redirect to after the app is loaded
         var path = window.location.pathname + window.location.search + window.location.hash;
 
-        // Redirect if the path is not root or if it's not a valid React route
+        // Redirect only if the path is not already a valid route
         if (path !== '/' && !window.location.search.includes('redirect=') && !path.startsWith('/index.html')) {
+            // Set the redirect URL as a query parameter to prevent infinite loop
             window.location.replace('/?redirect=' + encodeURIComponent(path));
         }
     </script>
