@@ -8,55 +8,65 @@ import Replay30Icon from '@mui/icons-material/Replay30';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Chapter, useGetAllChaptersOfBookByChapterIdQuery } from '../../models/generated/graphql';
+import { useGetAllChaptersOfBookByChapterIdQuery } from '../../models/generated/graphql';
 import Routes from '@/shared/enums/routes';
-import { audioPlayerTranslations } from './locale/translations';
 import { t } from 'i18next';
+import ChapterState from './types/chapterState';
+import { audioPlayerTranslations } from './locale/translations';
+import AudioState from './types/audioState';
 
 export const AudioPlayer = () : JSX.Element => {
     // State and hooks
     const { bookId, chapterId } = useParams();
     const navigate = useNavigate();
     const audioRef = useRef<HTMLAudioElement>(null);
-    const [isPlaying, setIsPlaying] = useState<boolean>(false);
-    const [audioDuration, setAudioDuration] = useState<number | undefined>(0);
-    const [audioCurrentTime, setAudioCurrentTime] = useState<number | undefined>(0);
-    const [previousChapter, setPreviousChapter] = useState<Chapter>();
-    const [currentChapter, setCurrentChapter] = useState<Chapter>();
-    const [nextChapter, setNextChapter] = useState<Chapter>();
+    const [audioState, setAudioState] = useState<AudioState>({ audioCurrentTime: 0, audioDuration: 0, isPlaying: false })
+    const [chapterState, setChapterState] = useState<ChapterState>({ previousChapter: undefined, currentChapter: undefined, nextChapter: undefined });
 
     const {data, error, loading} = useGetAllChaptersOfBookByChapterIdQuery({ variables: { id: chapterId } });
-    const updateProgress = () => {
-        setAudioCurrentTime(audioRef.current?.currentTime);
-        setAudioDuration(audioRef.current?.duration);
-        if (audioRef.current?.currentTime === audioRef.current?.duration && isPlaying) {
-            handleNextButton();
-        }
-    };
+    
+    useEffect(() => {
+        const audioElement = audioRef.current;
 
-    audioRef.current?.addEventListener('timeupdate', updateProgress);
-    audioRef.current?.addEventListener('loadedmetadata', updateProgress);
+        if (audioElement) {
+            const handleTimeUpdate = () => {
+                setAudioState((prevState) => ({
+                    ...prevState,
+                    audioCurrentTime: audioElement.currentTime,
+                    audioDuration: audioElement.duration,
+                }));
+                if (audioElement.currentTime === audioElement.duration && audioState.isPlaying) {
+                    handleNextButton();
+                }
+            };
+
+            audioElement.addEventListener('timeupdate', handleTimeUpdate);
+            audioElement.addEventListener('loadedmetadata', handleTimeUpdate);
+
+            return () => {
+                audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+                audioElement.removeEventListener('loadedmetadata', handleTimeUpdate);
+            };
+        }
+    }, [audioState.isPlaying]);
 
     useEffect(() => {
         if (data) {
-            const current = data.chapter.find(x => x.id === chapterId);
-            const previous = data.chapter.find(x => x.order === (current?.order - 1));
-            const next = data.chapter.find(x => x.order === (current?.order + 1));
-            setCurrentChapter(current);
-            setPreviousChapter(previous);
-            setNextChapter(next);
+            const currentChapter = data.chapter.find(x => x.id === chapterId);
+            const previousChapter = data.chapter.find(x => x.order === (currentChapter?.order - 1));
+            const nextChapter = data.chapter.find(x => x.order === (currentChapter?.order + 1));
+            setChapterState(prevState => ({ ...prevState, previousChapter, currentChapter, nextChapter }));
         }
     }, [data, chapterId]);
 
     // Event handlers
     const handlePlayPause = () => {
-        updateProgress()  
-        if (isPlaying) {
+        if (audioState.isPlaying) {
             audioRef.current?.pause();
-            setIsPlaying(false);
+            setAudioState(prevState => ({...prevState, isPlaying: false}))
         } else {
             audioRef.current?.play();
-            setIsPlaying(true);
+            setAudioState(prevState => ({...prevState, isPlaying: true}))
         }
     };
 
@@ -64,33 +74,37 @@ export const AudioPlayer = () : JSX.Element => {
         const time = newValue as number;
         event.NONE;
         if (audioRef.current) {
-            audioRef.current.currentTime = (time / 100) * (audioDuration ?? 0);
+            audioRef.current.currentTime = (time / 100) * (audioState.audioDuration ?? 0);
+            console.log('calling SetAudiostate')
+            setAudioState(prevState => ({...prevState, audioCurrentTime: audioRef.current!.currentTime}))
         }
     };
 
     const handleForwardButton = () => {
         if (audioRef.current) {
             audioRef.current.currentTime += 30;
+            setAudioState(prevState => ({...prevState, audioCurrentTime: audioRef.current!.currentTime }))
         }
     };
 
     const handleReplayButton = () => {
         if (audioRef.current) {
             audioRef.current.currentTime -= 30;
+            setAudioState(prevState => ({...prevState, audioCurrentTime: audioRef.current!.currentTime }))
         }
     };
     
     const handleNextButton = () => {
         handlePlayPause();
-        if (nextChapter) {
-            navigate(Routes.ListenToChapter.replace(':bookId', bookId ?? '').replace(':chapterId', nextChapter.id));
+        if (chapterState.nextChapter) {
+            navigate(Routes.ListenToChapter.replace(':bookId', bookId ?? '').replace(':chapterId', chapterState.nextChapter.id));
         }
     };
 
     const handlePreviousButton = () => {
         handlePlayPause();
-        if (previousChapter) {
-            navigate(Routes.ListenToChapter.replace(':bookId', bookId ?? '').replace(':chapterId', previousChapter.id));
+        if (chapterState.previousChapter) {
+            navigate(Routes.ListenToChapter.replace(':bookId', bookId ?? '').replace(':chapterId', chapterState.previousChapter.id));
         }
     };
 
@@ -108,14 +122,14 @@ export const AudioPlayer = () : JSX.Element => {
     };
 
     const isNextButtonDisabled = () => {
-        if(!nextChapter) {
+        if(!chapterState.nextChapter) {
             return true
         } 
         return false
     }
 
     const isPreviousButtonDisabled = () => {
-        if(!previousChapter) {
+        if(!chapterState.previousChapter) {
             return true
         } 
         return false
@@ -140,21 +154,22 @@ export const AudioPlayer = () : JSX.Element => {
     return (
         <div className='audio-player'>
             <div className='audio-header-container'>
-                <img className='audio-image' src={currentChapter?.imageUrl} alt="Chapter" />
-                <h2 className='audio-title'>{currentChapter?.title}</h2>
-                <h3 className='audio-author'>{currentChapter?.author}</h3>
+                <img className='audio-image' src={chapterState?.currentChapter?.imageUrl} alt="Chapter" />
+                <h2 className='audio-title'>{chapterState?.currentChapter?.title}</h2>
+                <h3 className='audio-author'>{chapterState?.currentChapter?.author}</h3>
             </div>
             <div>
                 <Slider 
+                    data-testid="progress-slider"
                     className="slider" 
                     aria-label="small" 
                     onChange={handleSliderChange} 
-                    value={((audioCurrentTime ?? 0) / (audioDuration ?? 0)) * 100} 
+                    value={(audioState.audioDuration > 0) ? (audioState.audioCurrentTime / audioState.audioDuration) * 100 : 0}
                     aria-labelledby="audio-slider" 
                 /> 
                 <div className="audio-times">
-                    <span>{formatTime(audioCurrentTime ?? 0)}</span>  
-                    <span>{formatTime(audioDuration ?? 0)}</span>
+                    <span>{formatTime(audioState.audioCurrentTime ?? 0)}</span>  
+                    <span>{formatTime(audioState.audioDuration ?? 0)}</span>
                 </div>
             </div>
             <div>
@@ -164,8 +179,8 @@ export const AudioPlayer = () : JSX.Element => {
                 <IconButton onClick={handleReplayButton}>
                     <Replay30Icon fontSize="large" />
                 </IconButton>
-                <IconButton onClick={handlePlayPause} size='large'>
-                    {isPlaying ? <PauseCircleIcon className="play-pause-button" /> : <PlayCircleIcon className="play-pause-button" />}
+                <IconButton data-testid="play-pauze-button" onClick={handlePlayPause} size='large'>
+                    {audioState.isPlaying ? <PauseCircleIcon data-testid="pause-icon" className="play-pause-button" /> : <PlayCircleIcon data-testid="play-icon" className="play-pause-button" />}
                 </IconButton>
                 <IconButton onClick={handleForwardButton}>
                     <Forward30Icon fontSize="large" />
@@ -174,7 +189,7 @@ export const AudioPlayer = () : JSX.Element => {
                     <SkipNextIcon fontSize="large" />
                 </IconButton>
             </div>
-            <audio ref={audioRef} src={currentChapter?.audioUrl} onLoadedData={handlePlayPause}></audio>
+            <audio ref={audioRef} src={chapterState?.currentChapter?.audioUrl} onLoadedData={handlePlayPause}></audio>
         </div>
     );
 };
